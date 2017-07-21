@@ -9,7 +9,9 @@
  password="d8d668942720a6934eaad11fdcdbe423fb79c6f17c92caf85bb99d3431c3d818" />
 </Context>
 
-<!--  Heroku heeft vermoedelijk problemen met deze code, de database kan lokaal worden gemaakt door de bovenstaande code
+
+
+<!--  Heroku heeft vermoedelijk problemen met deze code, de database kan lokaal/via heroku worden gemaakt door de bovenstaande code
 met de onderstaande code om te wisselen
 _______________________________________________________________________________________________
 
@@ -22,6 +24,17 @@ ________________________________________________________________________________
  type="javax.sql.DataSource"
  username="postgres"
  password="asdasd12" />
+</Context>
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+ <Resource name="jdbc/PostgresDS"
+ url="jdbc:postgres://hngiujnqgfyzhs:d8d668942720a6934eaad11fdcdbe423fb79c6f17c92caf85bb99d3431c3d818@ec2-54-247-120-169.eu-west-1.compute.amazonaws.com:5432/d7gp1lhugl5fsn"
+ driverClassName="org.postgresql.Driver"
+ auth="Container"
+ type="javax.sql.DataSource"
+ username="hngiujnqgfyzhs"
+ password="d8d668942720a6934eaad11fdcdbe423fb79c6f17c92caf85bb99d3431c3d818" />
 </Context>
 
 _______________________________________________________________________________________________

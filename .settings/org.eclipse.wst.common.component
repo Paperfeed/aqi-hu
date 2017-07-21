@@ -5,5 +5,6 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <property name="context-root" value="aqi"/>
         <property name="java-output-path" value="/aqi/target/classes"/>
+        <property name="component.exclusion.patterns" value="WEB-INF/web.xml"/>
     </wb-module>
 </project-modules>
