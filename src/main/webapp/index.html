@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AQI</title>
+<link rel="stylesheet" href="css/style.css" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="js/scripts.js"></script>
+
+<script async defer
+	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCuYfrliABLWP2FDSl0z37J4O3x-3Qt-Gg&callback=initMap"
+	type="text/javascript"></script>
+</head>
+<body>
+	<div id="header">
+		<div>
+			<div class="logo">
+				<a href="index.html">AQI</a>
+			</div>
+			<ul id="navigation">
+				<li class="active"><a href="index.html">Home</a></li>
+				<li><a href="features.html">Features</a></li>
+				<li><a href="news.html">News</a></li>
+				<li><a href="about.html">About</a></li>
+				<li><a href="contact.html">Contact</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="allcontent">
+	<div id="contents">
+		<!-- API Google maps integration -->
+		<div id="tagline" class="clearfix">
+			<input type="text" name="search" id="press-enter"
+				placeholder="Search..">
+			<h1 id="citymessage">Search any city!</h1>
+		</div>
+		<div id='map' style='height: 380px;'></div>
+	</div>
+	<div id="jscontent">
+		<div id="tablesearch">
+			<table>
+				<tr>
+					<th style='width: 300px'>Parameter</th>
+					<th style='width: 200px'>Value</th>
+				</tr>
+				<tr>
+					<td>Nitrogen dioxide (NO2):</td>
+					<td id="no2"></td>
+				</tr>
+				<tr>
+					<td>Ozon (O3):</td>
+					<td id="o3"></td>
+				</tr>
+				<tr>
+					<td>Particulate Matter (PM2.5):</td>
+					<td id="pm25"></td>
+				</tr>
+				<tr>
+					<td>Particulate Matter (PM10):</td>
+					<td id="pm"></td>
+				</tr>
+				<tr>
+					<td>Sulfur dioxide (SO2):</td>
+					<td id="so2"></td>
+				</tr>
+				<tr>
+					<td>Carbon Monoxide (CO):</td>
+					<td id="co"></td>
+				</tr>
+				<tr>
+					<td>Humidity:</td>
+					<td id="h"></td>
+				</tr>
+				<tr>
+					<td>Pressure:</td>
+					<td id="p"></td>
+				</tr>
+				<tr>
+					<td>Temperature:</td>
+					<td id="t"></td>
+				</tr>
+				<tr>
+					<td>Wind:</td>
+					<td id="wd"></td>
+				</tr>
+			</table>
+		</div>
+		<div id="parasearch">
+			<p style='font-size: 30px; color: #001a66;'>
+				<b>AQI Score: <label id="aqif"></label></b>
+			</p>
+			<p>
+				Longitude: <label id="longitude"></label>
+			</p>
+			<p>
+				Latitude: <label id="latitude"></label>
+			</p>
+			<p>
+				Organisation: <label id="nameorg"></label>
+			</p>
+			<p>
+				URL: <label id="urlorg"></label>
+			</p>
+			<p>
+				Time of measurement: <label id="displaytime"></label>
+			</p>
+		</div>
+		<!-- canvasjs charts - search -->
+		<div id="graphleft">
+			<br>
+			<div id="chartContainer0" style="height: 300px; width: 100%; float: left; clear: both;"></div>
+		</div>
+		<!-- canvasjs charts - database -->
+		<div id="graphright">
+			<br>
+			<div id="chartContainer1" style="height: 300px; width: 100%; float: right; clear: both;"></div>
+			<div id="chartContainer2" style="height: 300px; width: 100%; float: right; clear: both;"></div>
+			<div id="chartContainer3" style="height: 300px; width: 100%; float: right; clear: both;"></div>
+			</div>
+		</div>
+		<div id="healthwarn">
+			<table class='wikitable'>
+				<tbody>
+					<tr>
+						<th style='width: 100px;'>AQI</th>
+						<th style='width: 150px;'>Air Pollution<br>Level
+						</th>
+						<th>Health Implications</th>
+					</tr>
+					<tr>
+						<td>0 &#x2212 50</td>
+						<td style='background-color: #00e400; color: #000'>Excellent</td>
+						<td>No health implications.</td>
+					</tr>
+					<tr>
+						<td>51 &#x2212 100</td>
+						<td style='background-color: #ffff00; color: #000'>Good</td>
+						<td>Few hypersensitive individuals should reduce outdoor
+							exercise.</td>
+					</tr>
+					<tr>
+						<td>101 &#x2212 150</td>
+						<td style='background-color: #ff7e00; color: #fff'>Lightly
+							Polluted</td>
+						<td>Slight irritations may occur, individuals with breathing
+							or heart problems should reduce outdoor exercise.</td>
+					</tr>
+					<tr>
+						<td>151 &#x2212 200</td>
+						<td style='background-color: #ff0000; color: #fff'>Moderately
+							Polluted</td>
+						<td>Slight irritations may occur, individuals with breathing
+							or heart problems should reduce outdoor exercise.</td>
+					</tr>
+					<tr>
+						<td>201 &#x2212 300</td>
+						<td style='background-color: #99004c; color: #fff'>Heavily
+							Polluted</td>
+						<td>Healthy people will be noticeably affected. People with
+							breathing or heart problems will experience reduced endurance in
+							activities. These individuals and elders should remain indoors
+							and restrict activities.</td>
+					</tr>
+					<tr>
+						<td>300+</td>
+						<td style='background-color: #7e0023; color: #fff'>Severely
+							Polluted</td>
+						<td>Healthy people will experience reduced endurance in
+							activities. There may be strong irritations and symptoms and may
+							trigger other illnesses. Elders and the sick should remain
+							indoors and avoid exercise. Healthy individuals should avoid
+							outdoor activities.</td>
+					</tr>
+				</tbody>
+			</table>
+			</div>
+	</div>  
+	<div id="footer">
+		<div class="clearfix">
+			<p>Made by Boris Blom 2017.</p>
+			<p>Many thanks to the World Air Quality Index project for their
+				great API and reliable data supply.</p>
+		</div>
+	</div>
+
+</body>
+</html>
