@@ -48,18 +48,18 @@ public class AqiApiRequest {
 		}
 
 		// alleen de objecten die niet vanzelfsprekend een waarde hebben worden hier geinitialiseerd.
-		Object city = "0 - No data available";
-		Object aqif = "0 - No data available";
-		Object no2_value = "0 - No data available";
-		Object p_value = "0 - No data available";
-		Object o3_value = "0 - No data available";
-		Object pm25_value = "0 - No data available";
-		Object t_value = "0 - No data available";
-		Object so2_value = "0 - No data available";
-		Object h_value = "0 - No data available";
-		Object pm_value = "0 - No data available";
-		Object co_value = "0 - No data available";
-		Object wd_value = "0 - No data available";
+		Object city = null;
+		Object aqif = null;
+		Object no2_value = null;
+		Object p_value = null;
+		Object o3_value = null;
+		Object pm25_value = null;
+		Object t_value = null;
+		Object so2_value = null;
+		Object h_value = null;
+		Object pm_value = null;
+		Object co_value = null;
+		Object wd_value = null;
 		Object nameorg = "Unknown organisation";
 		Object displaytime = "No time provided";
 		Object urlorg	= "Unknown website";
@@ -133,8 +133,8 @@ public class AqiApiRequest {
 	           			nameorg = attriarray.get("name");
 	           			urlorg = attriarray.get("url");
 	           	JSONArray geo = (JSONArray) citydata.get("geo");
-	           		longitude = geo.get(0);
-	           		latitude = geo.get(1);
+	           		longitude = geo.get(1);
+	           		latitude = geo.get(0);
 	           		
 	           		//Hier worden alle gegevens in pojo Aqi opgeslagen en vervolgens gereturned
 	           		out = new Aqi((Object) city, (Object) aqif, (Object) no2_value, (Object) p_value, (Object) o3_value, (Object) pm25_value, (Object) t_value, (Object) so2_value, (Object) h_value, (Object) pm_value, (Object) co_value, (Object) wd_value, (Object) nameorg, (Object) displaytime, (Object) urlorg, (Object) longitude, (Object) latitude);
