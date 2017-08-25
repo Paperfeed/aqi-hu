@@ -14,15 +14,20 @@ import com.ipass.aqi.DAO.Aqi;
 
 public class AqiApiRequest {
 	// De functie die bij een get wordt gestart
-	public Aqi doGet(String req) throws IOException{
+	public Aqi doGet(String search) throws IOException{
+
 		// Uniek token die de API nodig heeft om een resultaat te kunnen geven
-		String token = "3817177d29c5845192f55c3a2a4ca92fe16e93ee";		
-        String search = req;
-        //Het openen van de connectie, bij de url worden de user-input en token toegevoegd, vervolgens wordt de connectie geopent, 
-        // gelezen en veranderd naar een bufferedreader.
-		URL oracle = new URL("https://api.waqi.info/feed/" + search + "/?token=" + token);
-		System.out.println(oracle);
-		URLConnection yc = oracle.openConnection();
+		String token = "3817177d29c5845192f55c3a2a4ca92fe16e93ee";
+
+        // Het openen van de connectie, bij de url worden de user-input en token toegevoegd,
+        // vervolgens wordt de connectie geopent,  gelezen en veranderd naar een bufferedreader.
+		URL url = new URL("https://api.waqi.info/feed/" + search + "/?token=" + token);
+
+		if (Debug.ON) {
+			System.out.println(url);
+		}
+
+		URLConnection yc = url.openConnection();
 		BufferedReader in = new BufferedReader(new InputStreamReader(
                 yc.getInputStream()));
 		 
@@ -35,13 +40,20 @@ public class AqiApiRequest {
         // Het resultaat is een String, deze String moet nog naar een JsonObject worden omgezet.
         while ((inputLine = in.readLine()) != null)
             result = result + inputLine;
-        	System.out.println(inputLine);
-        	
+
+			if (Debug.ON) {
+				System.out.println(inputLine);
+			}
+
+
         // De try catch is om parseexceptions op te vangen.
         JSONObject jsonObject = null;
 		try {
 			jsonObject = (JSONObject) new JSONParser().parse(result);
-			System.out.println(jsonObject);
+
+			if (Debug.ON) {
+				System.out.println(jsonObject);
+			}
 		} 
 		catch (ParseException e) {
 			e.printStackTrace();

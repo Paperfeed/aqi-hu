@@ -28,7 +28,7 @@ jQuery(document).ready(function() {
 	
 	
 // De URL waar requests naartoe moeten worden gestuurd
-var rootURL = "http://localhost:7777/aqi/rest/aqi";
+var rootURL = "/aqi/rest/aqi";
 
 	// Bij het drukken van enter in de zoekbalk wordt deze functie uitgevoerd
 	jQuery("#press-enter").keydown(function(ev){

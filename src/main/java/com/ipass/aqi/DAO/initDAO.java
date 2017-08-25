@@ -1,4 +1,4 @@
-package com.ipass.aqi.webservices;
+package com.ipass.aqi.DAO;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -12,6 +12,8 @@ import javax.servlet.annotation.WebListener;
 
 import com.ipass.aqi.DAO.AqiDAO;
 import com.ipass.aqi.DAO.BaseDAO;
+import com.ipass.aqi.webservices.AqiApiRequest;
+import com.ipass.aqi.webservices.Updater;
 
 // De weblistener notatie sorgt ervoor dat de klasse tijdens het opstarten van Tomcat eenmalig wordt opgestart
 // Hiervoor moet hij ook de ServletContextListener implementen

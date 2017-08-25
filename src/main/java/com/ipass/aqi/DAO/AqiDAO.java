@@ -10,6 +10,7 @@ import java.util.List;
 
 // DAO voor het uitvoeren van CRUD op de database, in het bijzonder het updaten van de reference tables.
 public class AqiDAO extends BaseDAO {
+
 	// Deze functie maakt een lijst van de resultset van de query die als
 	// parameter wordt meegegeven, de lijst is
 	// te gebruiken zoals elke java lijst
@@ -19,6 +20,7 @@ public class AqiDAO extends BaseDAO {
 		try (Connection con = super.getConnection()) {
 			PreparedStatement pstmt = con.prepareStatement(query);
 			ResultSet dbResultSet = pstmt.executeQuery();
+
 			// Loop door alle resultaten heen
 			while (dbResultSet.next()) {
 				String city = dbResultSet.getString("city");
@@ -38,6 +40,7 @@ public class AqiDAO extends BaseDAO {
 				String urlorg = dbResultSet.getString("urlorg");
 				String longitude = dbResultSet.getString("longitude");
 				String latitude = dbResultSet.getString("latitude");
+
 				// resultaat in pojo opslaan
 				Aqi newAqi = new Aqi(city, aqif, no2, p, o3, pm25, t, so2, h, pm, co, wd, nameorg, displaytime, urlorg,
 						longitude, latitude);
