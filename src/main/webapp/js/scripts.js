@@ -1,11 +1,15 @@
-// Hier de-bind ik het dollar teken zodat er geen conflict met canvasjs ontstaat
+// Hier unbind ik het dollar teken zodat er geen conflict met canvasjs ontstaat
 $.noConflict();
-// Dit zijn de 2 variablen die de locatie van de google maps widget bepalen
-var googlelat = 52.0612053;
-var googlelng = 5.1604964;
 
 // Hiermee wordt de googlemaps widget (asynchroon) geinitialiseerd 
-function initMap() {
+function initMap(googlelat, googlelng) {
+	if (googlelat == null){
+		var googlelat = 52.0612053;
+	}
+	if (googlelng == null){	
+		var googlelng = 5.1604964;
+	}
+	
 	var map = new google.maps.Map(document.getElementById('map'), {
 		center : new google.maps.LatLng(googlelat, googlelng),
 		mapTypeId : google.maps.MapTypeId.ROADMAP,
@@ -26,13 +30,12 @@ function initMap() {
 // Ready, oftewel pas laden als het html document geladen is
 jQuery(document).ready(function() {
 	
-	
 // De URL waar requests naartoe moeten worden gestuurd
 var rootURL = "/aqi/rest/aqi";
 
 	// Bij het drukken van enter in de zoekbalk wordt deze functie uitgevoerd
 	jQuery("#press-enter").keydown(function(ev){
-    if (ev.which === 13){
+    if ((ev.which === 13) && (jQuery('#press-enter').val() != "")){
     	findAll();
     	}   
     });
@@ -44,7 +47,7 @@ var rootURL = "/aqi/rest/aqi";
 		jQuery.getJSON(rootURL+"/"+jQuery('#press-enter').val(), function(res){
 			
 			// Een simpele check 
-			if(res[0]["city"] != null){
+			if(res[0] != null){
 			
 			// Omdat in de backend de zoekopdracht altijd wordt geplaatst op positie 1 is data0 het (resultaat) object van de zoekopdracht
 			var data0 = res[0];
@@ -68,17 +71,16 @@ var rootURL = "/aqi/rest/aqi";
 			var pm0 = data0["pm"];
 			var co0 = data0["co"];
 			var wd0 = data0["wd"];
-			var nameorg1 = data0["nameorg"];
+			var nameorg0 = data0["nameorg"];
 			var displaytime0 = data0["displaytime"];
 			var urlorg0 = data0["urlorg"];
 			var longitude0 = data0["longitude"];
 			var latitude0 = data0["latitude"];
 			
 			// Hier worden de googlemaps coordinaten aangepast naar de gezochte plek en de map opnieuw ingesteld
-			googlelat = latitude0;
-			googlelng = longitude0;
-			initMap();
-			
+			var googlelat = latitude0;
+			var googlelng = longitude0;
+			initMap(googlelat, googlelng);
 			
 			// Hier worden de gegevens in de html pagina geplaatst op de respectievelijke plek 
 			jQuery("#city").html(city0);
@@ -157,9 +159,9 @@ var rootURL = "/aqi/rest/aqi";
 			var longitude3 = data3["longitude"];
 			var latitude3 = data3["latitude"];			
 			
-			// Een simpele notificatie voor als de gezochte locatie geen resultaat oplevert
+			// Een simpele notificatie voor als de gezochte locatie een null resultaat oplevert
 				}else{
-					alert("The location you've requested either doesn't exist or isn't spelled correctly, please try again.");
+					alert("The location you've requested either doesn't exist in our database or isn't spelled correctly, please try again.");
 				}
 			
 			// Hier wordt de eerste chart aangemaakt (de chart waar de gezochte plaat komt te staan)

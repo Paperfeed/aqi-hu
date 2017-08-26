@@ -38,7 +38,6 @@ public class AqiResource {
 
 		// Hier wordt een nieuw JSON object aangemaakt met zowel de data van de
 		// search als van de Database erin
-		// het resultaat is dusL
 		// positie 0: wat de gebruiker zoekt
 		// positie 1: gegevens uit de database
 		// positie 2: gegevens uit de database

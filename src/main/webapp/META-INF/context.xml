@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Context>
  <Resource name="jdbc/PostgresDS"
-           url="jdbc:postgresql://localhost:7778/aqi"
-           driverClassName="org.postgresql.Driver"
-           auth="Container"
-           type="javax.sql.DataSource"
-           username="postgres"
-           password="asdasd12" />
+ url="jdbc:postgresql://localhost:7778/aqi"
+ driverClassName="org.postgresql.Driver"
+ auth="Container"
+ type="javax.sql.DataSource"
+ username="postgres"
+ password="asdasd12" />
 </Context>
 
-
-
 <!--  Heroku heeft vermoedelijk problemen met deze code, de database kan lokaal/via heroku worden gemaakt door de bovenstaande code
-met de onderstaande code om te wisselen
+met een van de onderstaande code blocks om te wisselen
 _______________________________________________________________________________________________
 
 <?xml version="1.0" encoding="UTF-8"?>
