@@ -50,11 +50,10 @@ $(document).ready(function() {
 	function findAll() {
 		// Get json in plaats van .ajax, getjson is simpel en netjes, de url wordt gemaakt van de root+ de invoer in de zoekbalk
 		$.getJSON(rootURL + "/" + $searchInput.val(), function(result){
-
+            
 			// Als je plaatsnaam niet in de database bestaat en/of gevonden kan worden
 			// laat dan weten aan gebruiker
 			if (result[0] === null) {
-                //$("#press-enter").attr("placeholder", "Location not found!");
                 $searchInput.addClass("animated shake error");
                 $searchInput.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
                     $searchInput.removeClass("animated shake error");
@@ -62,8 +61,31 @@ $(document).ready(function() {
 			} else {
                 // Eerste iteration is de zoekopdracht, laatste drie zijn reference steden
                 $.each(result, function (i, element) {
+
                     // Vul zoek opdracht informatie in op resultaten formulier
                     if (i === 0) {
+                        // tijdsverschil in minuten
+                        var timeDiff = Math.floor((new Date(element.displaytime).getTime() - Date.now()) / 60 / 1000);
+                        var timeUnit = (timeDiff === -1) ? "minute" : "minutes";
+
+                        if (-timeDiff >= 60) {
+                            // verschil is meer dan een uur
+                            timeDiff = Math.floor(timeDiff / 60);
+                            timeUnit = (timeDiff === -1) ? "hour" : "hours";
+
+                            if (-timeDiff >= 24) {
+                                // verschil is in dagen
+                                timeDiff = Math.floor(timeDiff / 24);
+                                timeUnit = (timeDiff === -1) ? "day" : "days";
+
+                                if (-timeDiff >= 30) {
+                                    // verschil is in maanden - hopelijk is de meeste data niet zo out of date :)
+                                    timeDiff = Math.floor(timeDiff / 30);
+                                    timeUnit = (timeDiff === -1) ? "month" : "months";
+                                }
+                            }
+                        }
+
                         $("#city").html(element.city);
                         $("#aqif").html(element.aqif);
                         $("#no2").html(element.no2);
@@ -77,7 +99,7 @@ $(document).ready(function() {
                         $("#co").html(element.co);
                         $("#wd").html(element.wd);
                         $("#nameorg").html(element.nameorg);
-                        $("#displaytime").html(element.displaytime);
+                        $("#displaytime").html(-timeDiff + " " + timeUnit + " ago");
                         $("#urlorg").html(element.urlorg);
                         $("#longitude").html(element.longitude);
                         $("#latitude").html(element.latitude);

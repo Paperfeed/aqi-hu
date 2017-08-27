@@ -20,7 +20,7 @@ img {
 }
 
 /*-- Font Color --*/
-.maincol, th {
+.maincolor, th {
 	color: #c17f61;
 }
 
@@ -42,14 +42,15 @@ img {
 
 /*-- Logo --*/
 #header h1 {
+	margin: 0 10px;
 	font: 60px/40px 'Play';
 	color: #000;
 	text-decoration: none;
 	text-transform: uppercase;
 }
 
-#header h1, #header h3 {
-	margin: 0;
+#header h3 {
+	margin: 0 10px;
 }
 
 /*-- Map Search --*/

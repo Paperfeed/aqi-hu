@@ -1,6 +1,5 @@
 package com.ipass.aqi.DAO;
 
-
 // Deze complete klasse is simpelweg een pojo die wordt gebruikt voor het opslaan van informatie
 public class Aqi {
 	private Object city;
