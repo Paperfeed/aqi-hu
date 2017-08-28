@@ -2,13 +2,37 @@ package com.ipass.aqi.DAO;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 // Deze complete klasse is simpelweg een POD voor opslag van data vanuit Gson
 public class AQIData {
     public String status;
     public Data data;
 
-    public PreparedStatement fillStatement (PreparedStatement statement) {
+    public HashMap getData() {
+        HashMap<String, String> hashMap = new HashMap();
+        hashMap.put("city", this.data.city.name);
+        hashMap.put("lat", this.data.city.geo[0]);
+        hashMap.put("lon", this.data.city.geo[1]);
+        hashMap.put("aqi", this.data.aqi);
+        hashMap.put("nameorg", this.data.attributions[0].name);
+        hashMap.put("urlorg", this.data.attributions[0].url);
+        hashMap.put("co", this.data.iaqi.co.v);
+        hashMap.put("h", this.data.iaqi.h.v);
+        hashMap.put("no2", this.data.iaqi.no2.v);
+        hashMap.put("o3", this.data.iaqi.o3.v);
+        hashMap.put("p", this.data.iaqi.p.v);
+
+        hashMap.put("pm10", this.data.iaqi.pm10.v);
+        hashMap.put("pm25", this.data.iaqi.pm25.v);
+        hashMap.put("so2", this.data.iaqi.so2.v);
+        hashMap.put("t", this.data.iaqi.t.v);
+        hashMap.put("displaytime", this.data.time.v);
+
+        return hashMap;
+    }
+
+    public void fillStatement (PreparedStatement statement) {
         // Deze method vult de bijgeleverde PreparedStatement in met de data van het object
         try {
             statement.setString(1, this.data.city.name);
@@ -18,22 +42,18 @@ public class AQIData {
             statement.setString(5, this.data.attributions[0].name);
             statement.setString(6, this.data.attributions[0].url);
             statement.setString(7, this.data.iaqi.co.v);
-            statement.setString(8, "");//this.data.iaqi.d.v);
-            statement.setString(9, this.data.iaqi.h.v);
-            statement.setString(10, this.data.iaqi.no2.v);
-            statement.setString(11, this.data.iaqi.o3.v);
-            statement.setString(12, this.data.iaqi.p.v);
-            statement.setString(13, this.data.iaqi.pm10.v);
-            statement.setString(14, this.data.iaqi.pm25.v);
-            statement.setString(15, this.data.iaqi.so2.v);
-            statement.setString(16, this.data.iaqi.t.v);
-            statement.setString(17, "");//this.data.iaqi.w.v);
-            statement.setString(18, "");//this.data.iaqi.wd.v);
+            statement.setString(8, this.data.iaqi.h.v);
+            statement.setString(9, this.data.iaqi.no2.v);
+            statement.setString(10, this.data.iaqi.o3.v);
+            statement.setString(11, this.data.iaqi.p.v);
+            statement.setString(12, this.data.iaqi.pm10.v);
+            statement.setString(13, this.data.iaqi.pm25.v);
+            statement.setString(14, this.data.iaqi.so2.v);
+            statement.setString(15, this.data.iaqi.t.v);
+            statement.setString(16, this.data.time.v);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return statement;
     }
     
     public class Data {
@@ -83,7 +103,7 @@ public class AQIData {
 
         @Override
         public String toString() {
-            return s + " " + tz + " GMT";
+            return this.s + " " + this.tz + " GMT";
         }
     }
 }

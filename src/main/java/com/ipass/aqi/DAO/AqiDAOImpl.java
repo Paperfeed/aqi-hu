@@ -1,79 +1,122 @@
 package com.ipass.aqi.DAO;
 
 import com.ipass.aqi.webservices.AqiApiRequest;
-import com.ipass.aqi.webservices.Updater;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
-public class DAO implements ServletContextListener {
-    // Functie die wordt uitgevoerd bij starten server
-    @Override
-    public void contextInitialized(ServletContextEvent event) {
-        System.out.println("Initializing Database...");
-        AqiApiRequest req = new AqiApiRequest();
+public class AqiDAOImpl implements AqiDAO {
+    //list is working as a database
+    private List<AQIData> aqiDataList;
 
-        // Hier kan worden gekozen om de table te wipen voordat de server word gestart
-        //fillDB.delete("DROP TABLE aqi");
+    public AqiDAOImpl(){
+        aqiDataList = new ArrayList<AQIData>();
+        Connection conn = getConnection();
 
-        // Probeer connectie te maken met de PostgreSQL DB
+        AqiApiRequest aqiApiRequest = new AqiApiRequest();
+        try {
+            AQIData paris = aqiApiRequest.doGet("Paris");
+            AQIData shanghai = aqiApiRequest.doGet("Shanghai");
+            AQIData newyork = aqiApiRequest.doGet("New York");
+            aqiDataList.add(paris);
+            aqiDataList.add(shanghai);
+            aqiDataList.add(newyork);
+            addToDB(paris);
+            addToDB(shanghai);
+            addToDB(newyork);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void initDAO () {
         try (Connection con = getConnection()) {
-
             // Check of de table AQI al bestaat, zo niet maak er een.
             // Als .isBeforeFirst() false returned betekent dat dat er geen resultaten zijn voor "aqi"
             // De table dus moet worden aangemaakt
             if (!con.getMetaData()
-                    .getTables(null,null,"aqi", null)
+                    .getTables(null, null, "aqi", null)
                     .isBeforeFirst()) {
                 System.out.println("AQI Table is being created");
 
                 String query = "CREATE TABLE aqi("
                         + "city VARCHAR(255) NOT NULL," + "lat VARCHAR(255)," + "lon VARCHAR(255),"
                         + "aqi VARCHAR(255)," + "nameorg VARCHAR(255)," + "urlorg VARCHAR(255),"
-                        + "co VARCHAR(255)," + "d VARCHAR(255)," + "h VARCHAR(255)," + "no2 VARCHAR(255),"
+                        + "co VARCHAR(255)," + "h VARCHAR(255)," + "no2 VARCHAR(255),"
                         + "o3 VARCHAR(255)," + "p VARCHAR(255)," + "pm10 VARCHAR(255)," + "pm25 VARCHAR(255),"
-                        + "so2 VARCHAR(255)," + "t VARCHAR(255)," + "w VARCHAR(255)," + "wd VARCHAR(255),"
-                        + "displaytime VARCHAR(255)," + "timezone VARCHAR(255),"
+                        + "so2 VARCHAR(255)," + "t VARCHAR(255),"
+                        + "displaytime VARCHAR(255),"
                         + "PRIMARY KEY (city));";
 
                 // Uitvoeren van de SQL query:
                 con.createStatement().execute(query);
             }
-
-            // Het aanmaken van 3 waarden in de table met de (Aqi)DAO
-            // TODO maak customizable
-            create(req.doGet("Paris"));
-            create(req.doGet("Shanghai"));
-            create(req.doGet("New York"));
-
             con.close();
-            System.out.println("Connection closed!");
-
-            // Hier wordt Updater gestart, een thread die om de dertig minuten de database update
-            Updater updater = new Updater();
-            updater.start();
-
-            System.out.println("Update listener started.");
-
-        } catch (SQLException | IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
-        System.out.println("Initialisation complete!");
+    @Override
+    public List<AQIData> getAllData() {
+        return this.aqiDataList;
+    }
+
+    @Override
+    public void updateAllData() {
+        for (AQIData aqiData : aqiDataList) {
+            updateData(aqiData);
+        }
+    }
+
+    @Override
+    public AQIData getData(String search) {
+        for (AQIData aqiData : aqiDataList) {
+            if (Objects.equals(aqiData.data.city.name, search)) {
+                // Data bestaat al, stuur deze terug.
+                return aqiData;
+            }
+        }
+
+        // Data bestaat nog niet, stuur door naar ApiApiRequest
+        return retrieveFromAPI(search);
+    }
+
+    private AQIData retrieveFromAPI(String search) {
+        AqiApiRequest aqiApiRequest = new AqiApiRequest();
+        try {
+            AQIData result = aqiApiRequest.doGet(search);
+            aqiDataList.add(result);
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public AQIData updateData(AQIData aqiData) {
+        AQIData update = retrieveFromAPI(aqiData.data.city.name);
+        addToDB(update);
+        return update;
+    }
+
+    @Override
+    public void deleteData(AQIData aqiData) {
+        for (AQIData obj : aqiDataList) {
+            if (Objects.equals(aqiData.data.city.name, obj.data.city.name)) {
+                aqiDataList.remove(obj);
+            }
+        }
     }
 
     private Connection getConnection() {
-
         // In het begin heeft de connectie nog geen waarde
-        Connection result;
+        Connection conn;
 
         try {
             // Hier moet de context worden geinitialiseerd, dit is voor het
@@ -89,7 +132,7 @@ public class DAO implements ServletContextListener {
 
             // Locatie van de Database
             DataSource ds = (DataSource) ic.lookup("java:comp/env/jdbc/PostgresDS");
-            result = ds.getConnection();
+            conn = ds.getConnection();
 
             System.out.println("Connection opened!");
 
@@ -97,7 +140,7 @@ public class DAO implements ServletContextListener {
             throw new RuntimeException(e);
         }
 
-        return result;
+        return conn;
     }
 
     // Deze functie maakt een lijst van de resultset van de query die als
@@ -105,10 +148,7 @@ public class DAO implements ServletContextListener {
     // te gebruiken zoals elke java lijst
     public List<AQIData> selectAqi(String query) {
         List<AQIData> results = new ArrayList<>();
-        ResultSet dbResultSet = executeQuery(query);
-
-        // Loop door alle resultaten heen
-        try {
+        try (ResultSet dbResultSet = executeQuery(query)) {
             while (dbResultSet.next()) {
                 AQIData obj = new AQIData();
                 obj.data.city.name = dbResultSet.getString("city");
@@ -135,7 +175,7 @@ public class DAO implements ServletContextListener {
                 results.add(obj);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            // De opgevraagde informatie bestaat niet of een andere fout is voorkomen
         }
 
         return results;
@@ -146,8 +186,55 @@ public class DAO implements ServletContextListener {
         return selectAqi("SELECT * FROM aqi");
     }
 
-    private void create(AQIData aqi) {
-        String query = "INSERT INTO aqi VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    private void addToDB(AQIData aqi) {
+        try (Connection conn = getConnection()) {
+            // Check if entry exists already, if so, then update instead.
+            String sql = "SELECT 1 FROM aqi WHERE city = '" + aqi.data.city.name +"';";
+            if (conn.prepareStatement(sql).execute()) {
+                System.out.println("Entry already exists.");
+                sql = "UPDATE aqi SET city = ?, lat = ?, lon = ?," +
+                        "aqi = ?, nameorg = ?, urlorg = ?, " +
+                        "co = ?, h = ?, no2 = ?, o3 = ?, p = ?, pm10 = ?, pm25 = ?, so2 = ?, t = ?, " +
+                        "displaytime = ? WHERE city='" + aqi.data.city.name + "';";
+            } else {
+                sql = "INSERT INTO aqi (city, lat, lon, aqi, nameorg, urlorg, " +
+                        "co, h, no2, o3, p, pm10, pm25, so2, t, displaytime) " +
+                        "VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );";
+            }
+
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            aqi.fillStatement(preparedStatement);
+            preparedStatement.execute();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+/*       String query = "INSERT INTO " +
+                "aqi (city, lat, lon, " +
+                "aqi, nameorg, urlorg, " +
+                "co, h, no2, o3, p, pm10, pm25, so2, t) " +
+                "VALUES('" +
+                data.get("city") + "','" +
+                data.get("lat") + "','" +
+                data.get("lon") + "','" +
+                data.get("aqi")  + "','" +
+                data.get("nameorg")  + "','" +
+                data.get("urlorg")  + "','" +
+                data.get("co")  + "','" +
+                data.get("h")  + "','" +
+                data.get("no2")  + "','" +
+                data.get("o3")  + "','" +
+                data.get("p")  + "','" +
+                data.get("pm10")  + "','" +
+                data.get("pm25")  + "','" +
+                data.get("so2")  + "','" +
+                data.get("t")  + "');";
+
+        System.out.println("query = " + query);
+        executeQuery(query);*/
+
+        /*String query = "INSERT INTO aqi VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection con = getConnection()) {
             System.out.println("STRING: " + aqi.toString());
             System.out.println("Trying to create new row!");
@@ -157,7 +244,7 @@ public class DAO implements ServletContextListener {
             System.out.println("Creation successful!");
         } catch (SQLException e) {
             e.printStackTrace();
-        }
+        }*/
     }
     
     // Een klasse die een row in de table aqi update
@@ -167,13 +254,13 @@ public class DAO implements ServletContextListener {
             // worden aangevuld met de code onder de query
             String query = "UPDATE aqi SET city=?, lat=?, lon=?," +
                     "aqi=?, nameorg=?, urlorg=?, " +
-                    "co=?, d=?, h=?, no2=?, o3=?, p=?, pm10=?, pm25=?, so2=?, t = ?, w=?, wd=?, " +
-                    "displaytime=?, timezone = ? WHERE city='"
-                    + aqi.data.city.name + "'";
+                    "co=?, d=?, h=?, no2=?, o3=?, p=?, pm10=?, pm25=?, so2=?, t = ?, " +
+                    "displaytime=? WHERE city='"
+                    + aqi.data.city.name + "';";
             System.out.println("UPDATE aqi.data.city.name = " + aqi.data.city.name);
 
             PreparedStatement pstmt = con.prepareStatement(query);
-            pstmt = aqi.fillStatement(pstmt);
+            aqi.fillStatement(pstmt);
             pstmt.execute();
             con.close();
             System.out.println("Update Statement complete");
@@ -185,13 +272,9 @@ public class DAO implements ServletContextListener {
     }
 
     // Verwijderen de complete aqi table
-    public void delete(boolean drop) {
-        // Bij deze functie wordt meegegeven of de table moet worden gedelete of
-        // niet, als er false wordt meegegeven doet
-        // deze functie dus eigenlijk niks
-        if (drop) {
-            executeQuery("DROP TABLE aqi");
-        }
+    public void deleteTable() {
+        System.out.println("Deleting database...");
+        executeQuery("DROP TABLE aqi");
     }
 
     private ResultSet executeQuery(String query) {
@@ -208,11 +291,5 @@ public class DAO implements ServletContextListener {
             e.printStackTrace();
             return null;
         }
-    }
-
-    // Functie die wordt uitgevoerd bij sluiten server
-    @Override
-    public void contextDestroyed(ServletContextEvent event) {
-        System.out.println("Server shutting down... Good night");
     }
 }
