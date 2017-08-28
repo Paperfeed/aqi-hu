@@ -50,7 +50,7 @@ $(document).ready(function() {
 	function findAll() {
 		// Get json in plaats van .ajax, getjson is simpel en netjes, de url wordt gemaakt van de root+ de invoer in de zoekbalk
 		$.getJSON(rootURL + "/" + $searchInput.val(), function(result){
-            
+
 			// Als je plaatsnaam niet in de database bestaat en/of gevonden kan worden
 			// laat dan weten aan gebruiker
 			if (result[0] === null) {

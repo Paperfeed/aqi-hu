@@ -2,13 +2,13 @@ package com.ipass.aqi.webservices;
 
 import java.io.IOException;
 
-import com.ipass.aqi.DAO.AqiDAO;
+import com.ipass.aqi.DAO.DAO;
 
 public class Updater extends Thread {
 
 	// run wordt gestart zodra deze thread wordt aangemaakt
 	public void run(){
-		AqiDAO fillDB = new AqiDAO();
+		DAO fillDB = new DAO();
 		AqiApiRequest req = new AqiApiRequest();
 
 		// Oneindige loop

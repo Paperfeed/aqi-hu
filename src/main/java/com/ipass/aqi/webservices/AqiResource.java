@@ -3,8 +3,8 @@ package com.ipass.aqi.webservices;
 import java.io.*;
 import java.util.List;
 import com.google.gson.Gson;
-import com.ipass.aqi.DAO.Aqi;
-import com.ipass.aqi.DAO.AqiDAO;
+import com.ipass.aqi.DAO.AQIData;
+import com.ipass.aqi.DAO.DAO;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -15,35 +15,32 @@ import javax.ws.rs.core.Response;
 
 @Path("/")
 public class AqiResource {
-
-	// Jersey path, een GET request naar de @Path wordt naar deze functie
-	// doorverwezen
+	// Jersey path, een GET request naar de @Path wordt naar deze functie doorverwezen
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("aqi/{req}")
 	public Response doGet(@PathParam("req") String req) throws IOException {
-		AqiApiRequest apireq = new AqiApiRequest();
-		Aqi jsonresult = apireq.doGet(req);
-
-		// Na het importen en uitlezen van het JSON object in van de API
+		// In deze method maken we JSon van ons eigen object en sturen dit door
 		// AqiApiRequest zijn we nu bij het punt waar we zelf een JSON
-		// Object maken, deze kunnen we vervolgens met een GET vanuit javascript
-		// opvragen.
-		// BELANGRIJK!! Er wordt hiet niet gebruik gemaakt van json simple maar
-		// van Gson, een json library van Google.
-		AqiDAO ref = new AqiDAO();
-		List<Aqi> all = ref.findAll();
+		// TODO houd DAO connectie open zodat requests niet zo lang duren?
+		DAO aqidao = new DAO();
+
+		// Check of de zoekterm al in de database bestaat - zo niet, update
+		List<AQIData> result = aqidao.selectAqi("SELECT " + req + " FROM aqi;");
+		if (result.isEmpty()) {
+			// zoekterm is nog niet in DB, haal op van WAQI
+			AqiApiRequest aqiApiRequest = new AqiApiRequest();
+			result.add(aqiApiRequest.doGet(req));
+		}
+
+		// Haal hier extra info over andere steden op en voeg die toe bij de lijst die uiteindelijk word omgezet
+		List<AQIData> extradata = aqidao.selectAqi("SELECT Paris, Shanghai, New York FROM aqi;");
+		result.addAll(extradata);
 
 		Gson gson = new Gson();
 
-		// Hier wordt een nieuw JSON object aangemaakt met zowel de data van de
-		// search als van de Database erin
-		// positie 0: wat de gebruiker zoekt
-		// positie 1: gegevens uit de database
-		// positie 2: gegevens uit de database
-		// positie 3: gegevens uit de database
-		all.add(0, jsonresult);
-		// Het bouwen van de response, de response wordt met gson naar json veranderd.
-		return Response.accepted().entity(gson.toJson(all)).build();
+		// Het bouwen van de response, het object wordt met gson naar json veranderd.
+		if (Debug.ON) {	System.out.println("RESULT JSon = " + gson.toJson(result)); }
+		return Response.accepted().entity(gson.toJson(result)).build();
 	}
 }
